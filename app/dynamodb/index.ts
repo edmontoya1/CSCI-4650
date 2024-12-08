@@ -71,6 +71,16 @@ export const insert_to_table = async (tableItem: TableInsertType) => {
     .catch((e) => `Failed to create\n${e}`);
 };
 
+export const insert_list_to_table = async (tableItems: TableInsertType[]) => {
+  tableItems.forEach((item) => {
+    const command = new PutCommand(item);
+    client
+      .send(command)
+      .then((res) => console.log("item inserted: " + res))
+      .catch((e) => "Failed to insert item: " + e);
+  });
+};
+
 export type ScanTableType =
   | ""
   | {
