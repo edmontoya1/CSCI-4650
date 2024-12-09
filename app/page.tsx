@@ -42,10 +42,62 @@ export default function Home() {
       if (res.ok) {
         // If the Todo was added successfully, fetch the updated list of todos
         const updatedTodos: TodoItem[] = await res.json();
-        console.log(updatedTodos);
         setTodos(updatedTodos);
       } else {
         console.log("Error adding todo");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
+  };
+
+  const toggleCompletion = async (todoId: string, completed: boolean) => {
+    setIsLoading(true);
+    try {
+      // Toggle the completion status locally
+      const updatedTodos = todos.map((todo) =>
+        todo.id === todoId ? { ...todo, completed: !completed } : todo
+      );
+      setTodos(updatedTodos);
+
+      // Make an API request to update the completion status on the server
+      const res = await fetch(`/api/${todoId}`, {
+        method: "PUT", // Or PUT depending on your API design
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ completed }),
+      });
+
+      if (!res.ok) {
+        console.log("Error toggling completion status");
+        // Revert the change locally if the request fails
+        const revertedTodos = todos.map((todo) =>
+          todo.id === todoId ? { ...todo, completed: !todo.completed } : todo
+        );
+        setTodos(revertedTodos);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
+  };
+
+  const removeTodo = async (todoId: string) => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/${todoId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ todoId }),
+      });
+      if (res.ok) {
+        setTodos(todos.filter((todo) => todo.id !== todoId));
+      } else {
+        console.log("Error removing todo");
       }
     } catch (e) {
       console.log(e);

@@ -6,12 +6,11 @@ import {
   IconButton,
 } from "@mui/material";
 import { TodoItem } from "../types";
-import { FormEvent } from "react";
 
 interface TodoListProps {
   todos: TodoItem[];
   toggleCompletion: (id: string, completed: boolean) => Promise<void>;
-  removeTodo: (index: number) => void;
+  removeTodo: (todoId: string) => Promise<void>;
 }
 
 const TodoList: React.FC<TodoListProps> = ({
@@ -19,8 +18,7 @@ const TodoList: React.FC<TodoListProps> = ({
   toggleCompletion,
   removeTodo,
 }) => {
-  const handleCompletion = (e: FormEvent, todo: TodoItem) => {
-    e.preventDefault();
+  const handleCompletion = (todo: TodoItem) => {
     console.log("handling completion of: ", todo);
     toggleCompletion(todo.id, todo.completed);
   };
@@ -30,7 +28,7 @@ const TodoList: React.FC<TodoListProps> = ({
       {todos.length === 0 ? (
         <h2>No Todos...</h2>
       ) : (
-        todos.map((todo, index) => (
+        todos.map((todo) => (
           <ListItem
             key={todo.id}
             sx={{
@@ -41,7 +39,7 @@ const TodoList: React.FC<TodoListProps> = ({
           >
             <Checkbox
               checked={todo.completed}
-              onChange={(e) => handleCompletion(e, todo)}
+              onChange={() => handleCompletion(todo)}
               color="primary"
             />
             <ListItemText
@@ -50,7 +48,7 @@ const TodoList: React.FC<TodoListProps> = ({
                 textDecoration: todo.completed ? "line-through" : "none",
               }}
             />
-            <IconButton onClick={() => removeTodo(index)} edge="end">
+            <IconButton onClick={() => removeTodo(todo.id)} edge="end">
               {/* <DeleteIcon /> */}
               <h2>DeleteIcon</h2>
             </IconButton>
