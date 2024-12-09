@@ -5,15 +5,12 @@ import {
   Checkbox,
   IconButton,
 } from "@mui/material";
-
-interface Todo {
-  text: string;
-  completed: boolean;
-}
+import { TodoItem } from "../types";
+import { FormEvent } from "react";
 
 interface TodoListProps {
-  todos: Todo[];
-  toggleCompletion: (index: number) => void;
+  todos: TodoItem[];
+  toggleCompletion: (id: string, completed: boolean) => Promise<void>;
   removeTodo: (index: number) => void;
 }
 
@@ -22,34 +19,44 @@ const TodoList: React.FC<TodoListProps> = ({
   toggleCompletion,
   removeTodo,
 }) => {
+  const handleCompletion = (e: FormEvent, todo: TodoItem) => {
+    e.preventDefault();
+    console.log("handling completion of: ", todo);
+    toggleCompletion(todo.id, todo.completed);
+  };
+
   return (
     <List>
-      {todos.map((todo, index) => (
-        <ListItem
-          key={index}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Checkbox
-            checked={todo.completed}
-            onChange={() => toggleCompletion(index)}
-            color="primary"
-          />
-          <ListItemText
-            primary={todo.text}
+      {todos.length === 0 ? (
+        <h2>No Todos...</h2>
+      ) : (
+        todos.map((todo, index) => (
+          <ListItem
+            key={todo.id}
             sx={{
-              textDecoration: todo.completed ? "line-through" : "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
             }}
-          />
-          <IconButton onClick={() => removeTodo(index)} edge="end">
-            {/* <DeleteIcon /> */}
-            <h2>DeleteIcon</h2>
-          </IconButton>
-        </ListItem>
-      ))}
+          >
+            <Checkbox
+              checked={todo.completed}
+              onChange={(e) => handleCompletion(e, todo)}
+              color="primary"
+            />
+            <ListItemText
+              primary={todo.itemDescription}
+              sx={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            />
+            <IconButton onClick={() => removeTodo(index)} edge="end">
+              {/* <DeleteIcon /> */}
+              <h2>DeleteIcon</h2>
+            </IconButton>
+          </ListItem>
+        ))
+      )}
     </List>
   );
 };

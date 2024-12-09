@@ -1,32 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Typography, Paper } from "@mui/material";
 import AddTodo from "./components/AddTodo";
 import TodoList from "./components/TodoList";
-
-// Define the Todo type
-interface Todo {
-  text: string;
-  completed: boolean;
-}
+import { TodoItem } from "./types";
 
 export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const addTodo = (newTodo: string) => {
-    setTodos([...todos, { text: newTodo, completed: false }]);
-  };
+  useEffect(() => {
+    const fetchTodo = async () => {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/todos");
+        const todos: TodoItem[] = await res.json();
 
-  const toggleCompletion = (index: number) => {
-    const updatedTodos = [...todos];
-    updatedTodos[index].completed = !updatedTodos[index].completed;
-    setTodos(updatedTodos);
-  };
+        setTodos(todos);
+      } catch (e) {
+        console.log(e);
+      }
+      setIsLoading(false);
+    };
 
-  const removeTodo = (index: number) => {
-    const updatedTodos = todos.filter((_, i) => i !== index);
-    setTodos(updatedTodos);
+    fetchTodo();
+  }, []);
+
+  const addTodo = async (newTodo: string) => {
+    setIsLoading(true);
+    try {
+      // Make a POST request to add the new Todo
+      const res = await fetch("/api/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ itemDescription: newTodo }),
+      });
+
+      if (res.ok) {
+        // If the Todo was added successfully, fetch the updated list of todos
+        const updatedTodos: TodoItem[] = await res.json();
+        console.log(updatedTodos);
+        setTodos(updatedTodos);
+      } else {
+        console.log("Error adding todo");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -37,11 +61,15 @@ export default function Home() {
 
       <Paper sx={{ padding: "1rem" }}>
         <AddTodo addTodo={addTodo} />
-        <TodoList
-          todos={todos}
-          toggleCompletion={toggleCompletion}
-          removeTodo={removeTodo}
-        />
+        {!isLoading ? (
+          <TodoList
+            todos={todos}
+            toggleCompletion={toggleCompletion}
+            removeTodo={removeTodo}
+          />
+        ) : (
+          <h2>Loading ...</h2>
+        )}
       </Paper>
     </Container>
   );
