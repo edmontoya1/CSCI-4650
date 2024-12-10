@@ -49,8 +49,7 @@ const TodoList: React.FC<TodoListProps> = ({
               }}
             />
             <IconButton onClick={() => removeTodo(todo.id)} edge="end">
-              {/* <DeleteIcon /> */}
-              <h2>DeleteIcon</h2>
+              <h2>Delete</h2>
             </IconButton>
           </ListItem>
         ))
