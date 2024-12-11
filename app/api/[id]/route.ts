@@ -6,7 +6,7 @@ import { DeleteCommand } from "@aws-sdk/lib-dynamodb";
 // Handle the PUT request to update completion status of a specific Todo
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params; // Extract the dynamic "id" from the URL
   const { completed } = await req.json();
@@ -71,7 +71,7 @@ export async function PUT(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params; // This is the dynamic route parameter 'id'
   if (!id) {
